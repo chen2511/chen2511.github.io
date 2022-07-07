@@ -1,0 +1,327 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>《机器学习》 第七章 贝叶斯分类器 | MomoChen</title><meta name="keywords" content="贝叶斯, 极大似然估计, 朴素贝叶斯分类器, EM"><meta name="author" content="MomoChen"><meta name="copyright" content="MomoChen"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="第一节介绍了贝叶斯决策论的基本内容和贝叶斯公式；第二节介绍了利用极大似然估计来估计参数值；第三节介绍了朴素贝叶斯分类器；第四节介绍了半朴素贝叶斯分类器【略】第六节简介了EM算法的思想。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《机器学习》 第七章 贝叶斯分类器">
+<meta property="og:url" content="https://chen2511.github.io/2022/07/01/AI/%E3%80%8A%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E3%80%8B%E5%91%A8%E5%BF%97%E5%8D%8E/%E7%AC%AC%E4%B8%83%E7%AB%A0%20%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%88%86%E7%B1%BB%E5%99%A8%203ff39e25ec7e42678ed297d26fa406c8/index.html">
+<meta property="og:site_name" content="MomoChen">
+<meta property="og:description" content="第一节介绍了贝叶斯决策论的基本内容和贝叶斯公式；第二节介绍了利用极大似然估计来估计参数值；第三节介绍了朴素贝叶斯分类器；第四节介绍了半朴素贝叶斯分类器【略】第六节简介了EM算法的思想。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://chen2511.github.io/img/watermelon.jpg">
+<meta property="article:published_time" content="2022-06-30T16:05:06.000Z">
+<meta property="article:modified_time" content="2022-07-01T16:00:00.000Z">
+<meta property="article:author" content="MomoChen">
+<meta property="article:tag" content="《机器学习》周志华">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://chen2511.github.io/img/watermelon.jpg"><link rel="shortcut icon" href="/img/favicon.jpg"><link rel="canonical" href="https://chen2511.github.io/2022/07/01/AI/%E3%80%8A%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E3%80%8B%E5%91%A8%E5%BF%97%E5%8D%8E/%E7%AC%AC%E4%B8%83%E7%AB%A0%20%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%88%86%E7%B1%BB%E5%99%A8%203ff39e25ec7e42678ed297d26fa406c8/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":1,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"简"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":800},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: true
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":500,"languages":{"author":"作者: MomoChen","link":"链接: ","source":"来源: MomoChen","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'mediumZoom',
+  Snackbar: {"chs_to_cht":"你已切换为繁体","cht_to_chs":"你已切换为简体","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#121212","position":"bottom-left"},
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: true,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '《机器学习》 第七章 贝叶斯分类器',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-07-02 00:00:00'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 5.4.2"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/favicon.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">36</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">26</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">10</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于我的</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/watermelon.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">MomoChen</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于我的</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">《机器学习》 第七章 贝叶斯分类器</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-06-30T16:05:06.000Z" title="发表于 2022-07-01 00:05:06">2022-07-01</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-07-01T16:00:00.000Z" title="更新于 2022-07-02 00:00:00">2022-07-02</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/AI/">AI</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/AI/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">1.6k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>5分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="《机器学习》 第七章 贝叶斯分类器"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="第七章-贝叶斯分类器"><a href="#第七章-贝叶斯分类器" class="headerlink" title="第七章 贝叶斯分类器"></a>第七章 贝叶斯分类器</h1><h1 id="7-1-贝叶斯决策论"><a href="#7-1-贝叶斯决策论" class="headerlink" title="7.1 贝叶斯决策论"></a>7.1 贝叶斯决策论</h1><p>对于N种可能的类别标记，$\lambda_{ij}$是将真实样本cj作物分类为ci产生的损失。基于后验概率可以计算将样本分类为ci的期望损失，即在样本x上的条件风险。</p>
+<script type="math/tex; mode=display">
+\begin{align} 
+R(c_i|x)=\sum_{i=1}^N{\lambda_{ij}P(c_j|x)}
+\end{align}</script><blockquote>
+<p>上述公式的意思就是：一个样本来了，对于每一类都有一个概率，对样本x计算错分成其他类别的概率再乘以损失，得到总的损失。就是条件风险</p>
+</blockquote>
+<p>而我们要做的就是找到一个判定准则，使得总体风险最小。</p>
+<script type="math/tex; mode=display">
+\begin{align} 
+R(h)=\mathbb{E}_x[R(h(x)|x)] 
+\end{align}</script><p>如果对于每一个样本都能够最小化风险R，那么总体的风险就将被最小化。</p>
+<p>这就是<code>贝叶斯判定准则</code>：为最小化总体风险，只需要对<code>每个样本</code>选择那个能够使条件风险最小化的类别标记。</p>
+<script type="math/tex; mode=display">
+\begin{align} 
+h^*(x)=\arg \min_{c\in Y}R(c|x) 
+\end{align}</script><p>此时，h(x)被称作是贝叶斯最优分类器，与之对应的R是贝叶斯风险。</p>
+<blockquote>
+<p>问题：如何求后验概率</p>
+</blockquote>
+<p>具体来说，对于每个样本，选择使得<code>后验概率</code>$P(c|x)$最大的类别标记即可。</p>
+<p>但是现实任务中很难直接获得。主要有两种策略：</p>
+<p>1、给定x，直接建模$P(c|x)$来预测c，这样得到的是<code>判别式模型</code>。前面的决策树、神经网络、SVM都是这类。</p>
+<p>2、先对联合概率密度建模$P(x,c)$，然后再获得$P(c|x)$，这样是<code>生成式模型</code>。</p>
+<blockquote>
+<p>贝叶斯定理求解</p>
+</blockquote>
+<p>根据贝叶斯定理，后验概率可以改写为：</p>
+<script type="math/tex; mode=display">
+\begin{align} 
+P(c|x)&=\frac{P(x,c)}{P(x)}\\
+&=\frac{P(c)P(x|c)}{P(x)}
+\end{align}</script><p>其中$P(c)$是类的“<code>先验概率</code>”；</p>
+<p>$P(x|c)$是样本x相对于标记c的<code>类条件概率</code>，也被称作是似然。（也就是在好瓜中，声音清脆的比例，等等）</p>
+<p>$P(x)$是由于归一化的<code>“证据”因子</code>，对于给定样本x，证据因子与类别标记无关。</p>
+<p>因此求解后验概率就变成了求解先验概率和类条件概率。</p>
+<p>1、对于先验概率：表达了样本空间中每类样本所占的比例，根据大数定律，可以根据各类样本所占的比例来估计。</p>
+<p>2、对于类条件概率：由于涉及到样本x的所有属性的联合概率，直接按频率估计会有比较大的困难，因为很多样本根本没有出现，比如n维2值属性，样本空间就有2的n次方，样本数往往达不到，因此用频率估计会有很大的问题。不用因为没有观测到，就认为出现的概率为0。</p>
+<h1 id="7-2-极大似然估计"><a href="#7-2-极大似然估计" class="headerlink" title="7.2 极大似然估计"></a>7.2 极大似然估计</h1><blockquote>
+<p>对于估计类条件概率，常用的策略是先假设分布形式，再根据样本来估计参数。这就是数理统计中的参数估计部分的内容。<br>有两个学派：<br>1、频率主义学派：认为参数未知，但是是固定值，可以通过矩估计、最大似然估计等计算。<br>2、贝叶斯学派，认为参数是一个随机变量，也符合一个分布，先假设服从一个先验分布，再根据观测的数据计算参数的后验分布。</p>
+</blockquote>
+<p>本节介绍最大似然估计</p>
+<blockquote>
+</blockquote>
+<p>核心思想是：如果一个事件发生了，哪个假设（参数）能 使得事件发生的概率最大，我们就选择哪个假设（参数）。</p>
+<p>比如：猎人和萌新去打猎，兔子被打死了，是谁打的呢？猎人打中的概率明显高于新手，我们可以认为是猎人干的。</p>
+<p>例子2：从符合正态分布的总体（均值未知）中取出许多个点，每个点都有一个概率公式，我们让所有点的概率公式连乘，就可以认为是这抽取一批样本联合概率。</p>
+<blockquote>
+<p>这种方法较为简单，但是非常依赖假设的概率分布是否接近潜在真实分布</p>
+</blockquote>
+<h1 id="7-3-朴素贝叶斯分类器"><a href="#7-3-朴素贝叶斯分类器" class="headerlink" title="7.3 朴素贝叶斯分类器"></a>7.3 朴素贝叶斯分类器</h1><p>从第一节中可以看到，估计后验概率的主要困难在于：类条件概率是在所有属性上的联合概率，难以从有限样本中估计。</p>
+<p>朴素贝叶斯分类器采用了“属性条件独立性假设”，也就是所有属性相互独立。后验概率重写为：</p>
+<script type="math/tex; mode=display">
+\begin{align} 
+P(c|x)
+&=\frac{P(c)P(x|c)}{P(x)} \\
+&=\frac{P(c)}{P(x)}\prod_{i=1}^d P(x_i|c)
+\end{align}</script><blockquote>
+<p>具体来说，将原来的n维互相影响的随机变量变成n维独立地随机变量，然后分解成n个简单的概率。<br>这里可能有个小问题，如果某个属性的样本数为0，那么连乘之后的概率还是0，不太合理，需要平滑数据。</p>
+</blockquote>
+<p><img src="/2022/07/01/AI/%E3%80%8A%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E3%80%8B%E5%91%A8%E5%BF%97%E5%8D%8E/%E7%AC%AC%E4%B8%83%E7%AB%A0%20%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%88%86%E7%B1%BB%E5%99%A8%203ff39e25ec7e42678ed297d26fa406c8/Untitled.png" alt="Untitled"></p>
+<p><img src="/2022/07/01/AI/%E3%80%8A%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E3%80%8B%E5%91%A8%E5%BF%97%E5%8D%8E/%E7%AC%AC%E4%B8%83%E7%AB%A0%20%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%88%86%E7%B1%BB%E5%99%A8%203ff39e25ec7e42678ed297d26fa406c8/Untitled%201.png" alt="Untitled"></p>
+<p><img src="/2022/07/01/AI/%E3%80%8A%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E3%80%8B%E5%91%A8%E5%BF%97%E5%8D%8E/%E7%AC%AC%E4%B8%83%E7%AB%A0%20%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%88%86%E7%B1%BB%E5%99%A8%203ff39e25ec7e42678ed297d26fa406c8/Untitled%202.png" alt="Untitled"></p>
+<p><img src="/2022/07/01/AI/%E3%80%8A%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E3%80%8B%E5%91%A8%E5%BF%97%E5%8D%8E/%E7%AC%AC%E4%B8%83%E7%AB%A0%20%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%88%86%E7%B1%BB%E5%99%A8%203ff39e25ec7e42678ed297d26fa406c8/Untitled%203.png" alt="Untitled"></p>
+<h1 id="7-4-半朴素贝叶斯分类器"><a href="#7-4-半朴素贝叶斯分类器" class="headerlink" title="7.4 半朴素贝叶斯分类器"></a>7.4 半朴素贝叶斯分类器</h1><p>前一节中，为了降低贝叶斯公式中后验概率的估计，采用了属性独立性假设，但是现实任务中较难成立，于是把条件适当放松，允许一部分属性相互依赖，半朴素贝叶斯分类器允许每个属性最多依赖一个其他属性。</p>
+<blockquote>
+<p>计算方法【略】</p>
+</blockquote>
+<h1 id="7-5-贝叶斯网"><a href="#7-5-贝叶斯网" class="headerlink" title="7.5 贝叶斯网"></a>7.5 贝叶斯网</h1><p>借助有向无环图（DAG图）来刻画属性之间的依赖关系。</p>
+<h1 id="7-6-EM算法"><a href="#7-6-EM算法" class="headerlink" title="7.6 EM算法"></a>7.6 EM算法</h1><p>前面的算法假设所有属性都能直接被观测到，但是现实中不是这样，比如西瓜的根蒂有时会脱落，无法得知。</p>
+<p>但是我们可以假设无法观测到的属性值为隐变量，而EM算法就是估计隐变量的好方法。</p>
+<p>基本思想是：如果分布的参数已知，则可以根据训练数据推断出最优隐变量的值；反之，如果隐变量的值已知，则可以方便地估计参数。</p>
+<p>算法步骤：</p>
+<p>1、E步：先初始化一个分布的参数值，利用这个参数值来计算对数似然的期望值，来估计隐变量；</p>
+<p>2、M步：利用E步得到的隐变量，来估计心得参数值</p>
+<p>这么循环，直至收敛至最优解。</p>
+</article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E3%80%8A%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E3%80%8B%E5%91%A8%E5%BF%97%E5%8D%8E/">《机器学习》周志华</a></div><div class="post_share"><div class="social-share" data-image="/img/watermelon.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/gh/overtrue/share.js@master/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/07/01/AI/%E3%80%8A%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E3%80%8B%E5%91%A8%E5%BF%97%E5%8D%8E/%E7%AC%AC%E5%85%AB%E7%AB%A0%20%E9%9B%86%E6%88%90%E5%AD%A6%E4%B9%A0%20f8f2c2d2e40849e3837d8ea2396e358a/"><img class="prev-cover" src="/img/watermelon.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">《机器学习》 第八章 集成学习</div></div></a></div><div class="next-post pull-right"><a href="/2022/06/30/AI/%E3%80%8A%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E3%80%8B%E5%91%A8%E5%BF%97%E5%8D%8E/%E7%AC%AC%E5%85%AD%E7%AB%A0%20%E6%94%AF%E6%8C%81%E5%90%91%E9%87%8F%E6%9C%BA%2077ca28176e6d4e3194113a438fcf3fb4/"><img class="next-cover" src="/img/watermelon.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">《机器学习》 第六章 支持向量机</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2022/05/25/AI/%E3%80%8A%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E3%80%8B%E5%91%A8%E5%BF%97%E5%8D%8E/%E7%AC%AC%E4%B8%80%E7%AB%A0%20%E7%BB%AA%E8%AE%BA%204c3f7b9232d6485f9b3c2cf6e620f5bd/" title="《机器学习》周志华 第一章 绪论"><img class="cover" src="/img/watermelon.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-05-25</div><div class="title">《机器学习》周志华 第一章 绪论</div></div></a></div><div><a href="/2022/05/29/AI/%E3%80%8A%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E3%80%8B%E5%91%A8%E5%BF%97%E5%8D%8E/%E7%AC%AC%E4%B8%89%E7%AB%A0%20%E7%BA%BF%E6%80%A7%E6%A8%A1%E5%9E%8B%2089a45d87f303413e8112782de2e9e930/" title="《机器学习》 第三章 线性模型"><img class="cover" src="/img/watermelon.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-05-29</div><div class="title">《机器学习》 第三章 线性模型</div></div></a></div><div><a href="/2022/07/01/AI/%E3%80%8A%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E3%80%8B%E5%91%A8%E5%BF%97%E5%8D%8E/%E7%AC%AC%E4%B9%9D%E7%AB%A0%20%E8%81%9A%E7%B1%BB%20513b4a2cd967414cb2ee17ce9bdaf8fc/" title="《机器学习》 第九章 聚类"><img class="cover" src="/img/watermelon.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-07-01</div><div class="title">《机器学习》 第九章 聚类</div></div></a></div><div><a href="/2022/05/26/AI/%E3%80%8A%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E3%80%8B%E5%91%A8%E5%BF%97%E5%8D%8E/%E7%AC%AC%E4%BA%8C%E7%AB%A0%20%E6%A8%A1%E5%9E%8B%E7%9A%84%E8%AF%84%E4%BC%B0%E4%B8%8E%E9%80%89%E6%8B%A9%203551668d792a4de7b4b497e84f4b341d/" title="《机器学习》 第二章 模型的评估与选择"><img class="cover" src="/img/watermelon.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-05-26</div><div class="title">《机器学习》 第二章 模型的评估与选择</div></div></a></div><div><a href="/2022/06/26/AI/%E3%80%8A%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E3%80%8B%E5%91%A8%E5%BF%97%E5%8D%8E/%E7%AC%AC%E4%BA%94%E7%AB%A0%20%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%203a634a124057462ca0b45c25c1cde913/" title="《机器学习》 第五章 神经网络"><img class="cover" src="/img/watermelon.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-06-26</div><div class="title">《机器学习》 第五章 神经网络</div></div></a></div><div><a href="/2022/07/01/AI/%E3%80%8A%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E3%80%8B%E5%91%A8%E5%BF%97%E5%8D%8E/%E7%AC%AC%E5%85%AB%E7%AB%A0%20%E9%9B%86%E6%88%90%E5%AD%A6%E4%B9%A0%20f8f2c2d2e40849e3837d8ea2396e358a/" title="《机器学习》 第八章 集成学习"><img class="cover" src="/img/watermelon.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-07-01</div><div class="title">《机器学习》 第八章 集成学习</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="gitalk-container"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AC%AC%E4%B8%83%E7%AB%A0-%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%88%86%E7%B1%BB%E5%99%A8"><span class="toc-text">第七章 贝叶斯分类器</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7-1-%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%86%B3%E7%AD%96%E8%AE%BA"><span class="toc-text">7.1 贝叶斯决策论</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7-2-%E6%9E%81%E5%A4%A7%E4%BC%BC%E7%84%B6%E4%BC%B0%E8%AE%A1"><span class="toc-text">7.2 极大似然估计</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7-3-%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%88%86%E7%B1%BB%E5%99%A8"><span class="toc-text">7.3 朴素贝叶斯分类器</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7-4-%E5%8D%8A%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%88%86%E7%B1%BB%E5%99%A8"><span class="toc-text">7.4 半朴素贝叶斯分类器</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7-5-%E8%B4%9D%E5%8F%B6%E6%96%AF%E7%BD%91"><span class="toc-text">7.5 贝叶斯网</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7-6-EM%E7%AE%97%E6%B3%95"><span class="toc-text">7.6 EM算法</span></a></li></ol></div></div></div></div></main><footer id="footer" style="background-image: url('/img/20150525233356_zkayE.png')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By MomoChen</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">欢迎来到漠漠的博客</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">简</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/medium-zoom/dist/medium-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    tex: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"]],
+      tags: 'ams'
+    },
+    chtml: {
+      scale: 1.2
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, ''],
+        insertScript: [200, () => {
+          document.querySelectorAll('mjx-container:not\([display]\)').forEach(node => {
+            const target = node.parentNode
+            if (target.nodeName.toLowerCase() === 'li') {
+              target.parentNode.classList.add('has-jax')
+            } else {
+              target.classList.add('has-jax')
+            }
+          });
+        }, '', false]
+      }
+    }
+  }
+  
+  const script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typeset()
+}</script><script>function addGitalkSource () {
+  const ele = document.createElement('link')
+  ele.rel = 'stylesheet'
+  ele.href= 'https://cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.css'
+  document.getElementsByTagName('head')[0].appendChild(ele)
+}
+
+function loadGitalk () {
+  function initGitalk () {
+    var gitalk = new Gitalk(Object.assign({
+      clientID: 'de79d51950505839a9fe',
+      clientSecret: '9461941e93326020b9e565d3ef15d8b9d0513548',
+      repo: 'chen2511.github.io',
+      owner: 'chen2511',
+      admin: ['chen2511'],
+      id: 'c958c2fadef8d95092ae101553418dae',
+      updateCountCallback: commentCount
+    },null))
+
+    gitalk.render('gitalk-container')
+  }
+
+  if (typeof Gitalk === 'function') initGitalk()
+  else {
+    addGitalkSource()
+    getScript('https://cdn.jsdelivr.net/npm/gitalk@latest/dist/gitalk.min.js').then(initGitalk)
+  }
+}
+
+function commentCount(n){
+  let isCommentCount = document.querySelector('#post-meta .gitalk-comment-count')
+  if (isCommentCount) {
+    isCommentCount.innerHTML= n
+  }
+}
+
+if ('Gitalk' === 'Gitalk' || !false) {
+  if (false) btf.loadComment(document.getElementById('gitalk-container'), loadGitalk)
+  else loadGitalk()
+} else {
+  function loadOtherComment () {
+    loadGitalk()
+  }
+}</script></div><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="99" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/canvas-nest.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
